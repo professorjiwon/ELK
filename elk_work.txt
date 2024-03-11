@@ -1,0 +1,56 @@
+elk 실행 확인
+  http://localhost:9200
+
+kibana 실행
+  http://localhost:5601
+
+1. index 만들기
+  PUT classes
+
+2. index 만들기
+  GET classes
+
+3. index 삭제
+DELETE classes
+
+4. 문서 생성
+  [표현법] POST/인덱스명/_doc/id 
+  POST classes/_doc/1
+  {
+    "name":"gildong",
+    "msg" : "hello"
+  }
+
+  -> 확인
+  GET classes/_doc/1
+
+  -> id를 넣지않고 생성 : id를 자동생성(문자+숫자)
+  POST classes/_doc
+  {
+    "name":"newName",
+    "msg" : "newMsg"
+  }
+
+5. 문서 업데이트
+  [표현법] POST/인덱스명/_update/id
+          {
+            "doc:{
+              기존의키 : 값변경   // 값만 변경
+              or
+              없는키 : 값         // 새로운 필드 삽입
+            }
+          }
+
+  POST classes/_update/1
+  {
+    "doc":{
+      "msg":"안녕"
+    }
+  }
+
+  POST classes/_update/1
+  {
+    "doc":{
+      "num1": 1
+    }
+  }
