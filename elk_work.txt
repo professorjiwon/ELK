@@ -52,3 +52,14 @@ DELETE classes
       "num1": 1
     }
   }
+
+  -> script를 이용한 값 변경
+  POST classes/_update/1
+  {
+    "script": {
+      "source": "ctx._source.num1 += params.value",
+      "params": {
+        "value":3
+      }
+    }
+  }

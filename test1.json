@@ -1,0 +1,6 @@
+{"index":{"_index":"itest2", "_id":"1"}}
+{"msg":"안녕 김이라고 해","name":"kim", "age":20}
+{"index":{"_index":"itest2", "_id":"2"}}
+{"msg":"나는 이가야","name":"lee", "age":20}
+{"index":{"_index":"itest2", "_id":"3"}}
+{"msg":"나는 박휘순이야","name":"park", "age":20}
