@@ -63,3 +63,103 @@ DELETE classes
       }
     }
   }
+
+6. _bulk : 한꺼번에 많은 items를 넣을 때
+
+  POST _bulk
+  {"index":{"_index":"itest", "id":"1"}}
+  {"msg":"안녕 김이라고 해","name":"kim", "age":20}
+  {"index":{"_index":"itest", "id":"2"}}
+  {"msg":"나는 이가야","name":"lee", "age":20}
+  {"index":{"_index":"itest", "id":"3"}}
+  {"msg":"나는 박휘순이야","name":"park", "age":20}
+
+  -> 파일로 index를 만들때
+  POST _bulk
+
+* DELETE 주의점 전체가 삭제되지 않도록 주의
+  -> 문서에서 id 1번만 삭제
+    DELETE itest2/_doc/1
+
+  -> index 전체 삭제
+    DELETE itest2
+
+7. _search : 검색
+  * url 검색
+    GET 인덱스/_search?q=검색키:검색값
+
+    GET itest2/_search?q=name:park
+    GET itest2/_search?q=name:park AND age:20
+
+  * 본문 데이터 검색
+
+  7.1. term : 완전일치 검색
+    GET basketball/_search
+    {
+      "query": {
+        "term":{
+          "points": 30
+        }
+      }
+    }
+
+  7.2. match : 단어가 포함되어 있으면 검색
+  GET basketball/_search
+  {
+    "query" : {
+      "match":{
+        "team":"states"
+      }
+    }
+  }
+
+   ->  match에서 공백은 or를 의미
+    GET basketball/_search
+    {
+      "query" : {
+        "match":{
+          "team":"states Jazz"
+        }
+      }
+    }
+
+   ->  match에서 and로 검색 : 공백 중간이나 앞, 뒤에 다른 단어가 와도됨
+    GET basketball/_search
+    {
+      "query":{
+        "match":{
+          "team": {
+            "query":"states Jazz",
+            "operator":"and"
+          }
+        }
+      }
+    }
+
+  7.3. match_phrase : 제시한 검색어는 정확히 일치. 앞이나 뒤에 다른단어가 와도됨
+  GET basketball/_search
+  {
+    "query":{
+      "match_phrase":{
+        "team" : "States Warriors"
+      }
+    }
+  }
+
+   -> slop 옵션: 값의 공백사이의 단어가 slop의 갯수 이하의 단어가 들어와도됨
+  GET basketball/_search
+  {
+    "query":{
+      "match_phrase":{
+        "team" : {
+          "query":"States Warriors",
+          "slop":1
+        }
+      }
+    }
+  }
+
+  문제1. Washington 이 들어가져 있는 모든 문서 검색
+  문제2. Golden States 들 중 하나라도 들어있는 문서 검색
+  문제3. Golden States 공백안에 1단어가 들어와도 검색
+  문제4. Warriors States 가 모두 들어있는 문서 검색
