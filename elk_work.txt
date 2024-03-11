@@ -163,3 +163,55 @@ DELETE classes
   문제2. Golden States 들 중 하나라도 들어있는 문서 검색
   문제3. Golden States 공백안에 1단어가 들어와도 검색
   문제4. Warriors States 가 모두 들어있는 문서 검색
+
+  7.4. query_string : 여러개의 검색 사용가능
+  GET basketball/_search
+  {
+    "query":{
+      "query_string":{
+        "default_field":"team",
+        "query": "(Golden AND Jazz) OR \"Golden Warriors\""
+      }
+    }
+  } 
+
+  7.5. Bool Query : 여러 쿼리를 조합하여 사용가능
+          4개의 인자 가지고 있다
+      - must : 쿼리가 참인 문서들을 검색
+      - must_not : 쿼리가 거짓인 문서들을 검색
+      - should : 검색 결과 중 이쿼리에 해당하는 문서들의 score를 높여줌
+      - filter : 쿼리가 참인 문서를 검색하지만 score를 계산하지 않음
+                must보다 검색 속도가 빠르다
+
+    [사용법]
+    GET 인덱스명/_search
+    {
+      "query":{
+        "bool":{
+          "must":[
+            { 쿼리 }, ...
+          ],
+          "must_not":[
+            { 쿼리 }, ...
+          ],
+          "should":[
+            { 쿼리 }, ...
+          ],
+          "filter":[
+            { 쿼리 }, ...
+          ]
+        }
+      }
+    }
+
+    GET basketball/_search
+    {
+      "query":{
+        "bool":{
+          "must": [
+            {"match": {"team":"Jazz"}},
+            {"match_phrase":{"team":"Golden States"}}
+          ]
+        }
+      }
+    } 
