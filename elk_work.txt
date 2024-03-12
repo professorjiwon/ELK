@@ -516,23 +516,22 @@ DELETE classes
   - discard : 복합어 분리
   - mixed : none과 discard 모두 저장
 
-/*  다 똑같이 나옴 나중에 확인
   PUT my_nori2
   {
-    "settings":{
-      "analysis":{
-        "tokenizer":{
+    "settings": {
+      "analysis": {
+        "tokenizer": {
           "nori_none": {
-            "type":"nori_tokenizer",
-            "discompound_mode":"none"
+            "type": "nori_tokenizer",
+            "decompound_mode": "none"
           },
-          "nori_discard":{
-            "type":"nori_tokenizer",
-            "discompound_mode":"discard"
+          "nori_discard": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "discard"
           },
-          "nori_mixed":{
-            "type":"nori_tokenizer",
-            "discompound_mode":"mixed"
+          "nori_mixed": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed"
           }
         }
       }
