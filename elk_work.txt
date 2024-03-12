@@ -224,8 +224,10 @@ DELETE classes
           "must": [
             {"match": {"team":"Jazz"}}, 
             {"match_phrase":{
-              "team":"Golden States",
-              "slop":1
+              "team": {
+                "query" : "Golden States",
+                "slop":1
+                }
               }
             }
           ]
@@ -234,3 +236,100 @@ DELETE classes
     } 
 
     -> Jazz 있고, Golden States 없는
+    GET basketball/_search
+    {
+      "query":{
+        "bool":{
+          "must":[{
+            "match":{
+              "team":"Jazz"
+            }
+          }],
+          "must_not":[{
+            "match_phrase":{
+              "team":"Golden States"
+            }
+          }]
+        }
+      }
+    }
+
+  -> should : 검색 점수 조정을 위해 사용(가중치를 넣어줌)
+  GET basketball/_search
+  {
+    "query":{
+      "match":{
+        "team":"Jazz"
+      }
+    }
+  }
+
+  -> 'Golden'에 가중치를 주어 score 올리기
+  GET basketball/_search
+  {
+    "query":{
+      "bool":{
+        "must":[{
+          "match":{"team":"Jazz"}
+        }],
+        "should":[{
+          "match":{"team":"Golden"}
+        }]
+      }
+    }
+  }
+
+  11: 1.3365866
+  7 : 1.1689311  (8,9)
+
+  -> filter : score에 영향을 주지 않고 검색값
+
+  -> Jazz로만 검색한 것과 score가 다름
+  GET basketball/_search
+  {
+    "query":{
+      "bool":{
+        "must":[{
+          "match":{"team":"Jazz"}
+        },
+        {
+          "match":{"team":"Golden"}
+        }
+        ]
+      }
+    }
+  }
+
+  -> Jazz로만 검색한 것과 같은 score를 가짐
+  GET basketball/_search
+  {
+    "query":{
+      "bool":{
+        "must":[{
+          "match":{"team":"Jazz"}
+        }],
+        "filter":[{
+          "match":{"team":"Golden"}
+        }]
+      }
+    }
+  }
+
+  -> Range query : 숫자나 날짜 형식을 범위를 검색
+    - gte : ~이상
+    - gt : ~초과
+    - lte : ~이하
+    - lt : ~미만
+
+  -> points가 10~19사이 검색
+  GET basketball/_search
+  {
+    "query":{
+      "range":{
+        "points":{
+          "gte":10,
+          "lt":20
+        }
+      }
+    }
+  }
