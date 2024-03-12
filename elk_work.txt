@@ -701,3 +701,183 @@ GET books/_search
       }
     }
   }
+
+  ->Multi filed : "fields"항목에 다시 새로운 필드를 정의하고 설정
+  DELETE  books
+
+  PUT books
+  {
+    "mappings": {
+      "properties": {
+        "author": {
+          "type": "text",
+          "fields": {
+            "fullname": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "nori":{
+              "type":"text"
+              "analyzer":"nori"
+            }
+          }
+        },
+        "category": {
+          "type": "keyword",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "publish_date": {
+          "type": "date"
+        },
+        "title": {
+          "type": "text",
+          "fields": {
+            "fullname": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "nori":{
+              "type":"text"
+              "analyzer":"nori"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  -> 숫자타입 : java의 타입과 동일 추가로
+    - half_float: 2byte
+    - scaled_flat : long형태로 저장. 옵션으로 소수점위치를 지정.
+
+    mapping에 integer로 해놓고, 실수형을 넣으면 보여줄때는 실수형을 보여주지만
+    실제 저장은 long형으로 저장되어 있음.
+
+    PUT num_index
+    {
+      "mappings":{
+        "properties":{
+          "value":{
+            "type":"integer"
+          }
+        }
+      }
+    }
+
+    PUT num_index/_doc/1
+    {
+      "value":1
+    }
+
+    PUT num_index/_doc/2
+    {
+      "value":"2"
+    }
+
+    PUT num_index/_doc/3
+    {
+      "value":3.4
+    }
+
+    GET num_index/_search
+    {
+      "query":{
+        "range":{
+          "value":{
+            "gte":1,
+            "lt":3
+          }
+        }
+      }
+    }
+
+    GET num_index/_search
+    {
+      "query":{
+        "range":{
+          "value":{
+            "gt":3,
+            "lt":5    // 결과 안나옴 3으로 저장되어 있기 때문
+          }
+        }
+      }
+    }
+
+  -> coerce옵션 : 지정한 타입외에 받을지 안받을지 선택(기본값:true)
+  PUT num_index2
+  {
+    "mappings":{
+      "properties":{
+        "value":{
+          "type":"integer",
+          "coerce":false
+        }
+      }
+    }
+  }
+
+  PUT num_index2/_doc/1
+  {
+    "value":1
+  }
+
+  PUT num_index2/_doc/2
+  {
+    "value":"2"
+  }
+
+  PUT num_index2/_doc/3
+  {
+    "value":3.4
+  }
+
+  -> date : ISO8601 형식을 따름. 이외의 다른형식은 text로 인식
+  PUT date_index/_doc/1
+  {
+    "date":"2024-03-12T16:45:30"    // type :date
+  }
+
+  PUT date_index2/_doc/1
+  {
+    "date":"12/mar/2024:16:45:30"   // type:text
+  }
+
+  GET date_index2
+
+  -> mapping 미리 정의
+  PUT date_index3
+  {
+    "mappings":{
+      "properties":{
+        "date":{
+          "type":"date",
+          "format":"dd/MMM/yyyy HH:mm:ss"
+        }
+      }
+    }
+  }
+
+  PUT date_index3/_doc/1
+  {
+    "date":"12/Mar/2024 16:45:30"
+  }
+
+  PUT date_index3
+  {
+    "mappings":{
+      "properties":{
+        "date":{
+          "type":"date",
+          "format":"dd/MMM/yyyy HH:mm:ss"||epoch_millis||yyyy-MM-dd
+        }
+      }
+    }
+  }
