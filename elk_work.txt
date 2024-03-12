@@ -595,8 +595,109 @@ DELETE classes
     "explain":true
   }
 
-  인덱스 settings 부사를 제외시키는 put 만들기 -> 테스트
-  인덱스 settings rules만들기 -> 테스트
+8. mapping(=스키마) : 자동으로 생성됨. 너무 많은 정보를 담고있다
 
-  인덱스 basketball에서 2024년도 정보 검색해오기
-  인덱스 basketball에서 rebounds 3이상 인것 모두 검색
+PUT books/_doc/1
+{
+  "title": "Romeo and Juliet",
+  "author": "William Shakespeare",
+  "category":"Tragedies",
+  "publish_date" : "1597-03-12T00:00:00",
+  "page" : 200
+}
+
+-> 전체 구조 확인
+ GET books
+ 
+-> 전체 구조 중 mappings의 값만 보기
+ GET books/_mapping
+
+-mapping의 정의
+ : 기존의 mapping에 추가는 가능하지만 바꾸지는 못한다
+ [표현법]
+ PUT 인덱스명/_mapping
+ {
+  "properties":{
+    "추가할 필드명":{
+      "type" : "필드 타입"
+    }
+  }
+ }
+
+ -> 기존의 books에 삽입
+ PUT books/_mapping
+ {
+  "properties":{
+    "content":{
+      "type":"text"
+    }
+  }
+ }
+
+  GET books/_mapping
+
+  -> 소문자도 검색됨
+  GET books/_search
+  {
+    "query":{
+      "match":{
+        "title":"romeo"
+      }
+    }
+  }
+
+-> title.keyword로 검색하면 대소문자 가림 : 안나옴
+GET books/_search
+{
+  "query": {
+    "match": {
+      "title.keyword": "romeo"
+    }
+  }
+}
+
+GET books/_search
+{
+  "query": {
+    "match": {
+      "title.keyword": "Romeo and Juliet"
+    }
+  }
+}
+
+  DELETE  books
+
+  PUT books
+  {
+    "mappings": {
+      "properties": {
+        "author": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "category": {
+          "type": "keyword",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "publish_date": {
+          "type": "date"
+        },
+        "title": {
+          "type": "text"
+        }
+      }
+    }
+  }
