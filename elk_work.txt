@@ -511,10 +511,93 @@ DELETE classes
     "text":["동해물과 백두산이"]
   }
 
-  -> 합성어(복합어) 처리 3가지 옵션
+  -> discompound_mode : 합성어(복합어) 처리 3가지 옵션
   - none : 복합어를 분리하지 않음
   - discard : 복합어 분리
   - mixed : none과 discard 모두 저장
 
-  
+/*  다 똑같이 나옴 나중에 확인
+  PUT my_nori2
+  {
+    "settings":{
+      "analysis":{
+        "tokenizer":{
+          "nori_none": {
+            "type":"nori_tokenizer",
+            "discompound_mode":"none"
+          },
+          "nori_discard":{
+            "type":"nori_tokenizer",
+            "discompound_mode":"discard"
+          },
+          "nori_mixed":{
+            "type":"nori_tokenizer",
+            "discompound_mode":"mixed"
+          }
+        }
+      }
+    }
+  }
 
+  GET my_nori2/_analyze
+  {
+    "tokenizer":"nori_none",
+    "text":["동해물과 백두산이"]
+  }
+*/
+
+  - stoptags : 한글 품사 중 제외시킬 품사
+
+  디폴트 값 =
+  "stoptags" : [
+    "E", "IC", "J", "MAG", "MAJ",
+    "MM", "SP", "SSC", "SSO", "SC",
+    "SE", "XPN", "XSA", "XSN", "XSV",
+    "UNA", "NA", "VSV"
+  ]
+
+  -> my_stoptag인덱스에서 수사(NR)을 제외
+  PUT my_stoptag
+  {
+    "settings":{
+      "index":{
+        "analysis":{
+          "filter":{
+            "my_stop_tag":{
+              "type":"nori_part_of_speech",
+              "stoptags":["NR"]
+            }
+          }
+        }
+      }
+    }
+  }
+
+  GET my_stoptag/_analyze
+  {
+    "tokenizer":"nori_tokenizer",
+    "filter":["my_stop_tag"],
+    "text":"일곱난장이들의 나들이"
+  }
+
+  -> nori_readingform : 한자를 한글로 바꾸어 저장
+  GET _analyze
+  {
+    "tokenizer":"nori_tokenizer",
+    "filter":["nori_readingform"],
+    "text":"立春大吉"
+  }
+
+  -> explain : 품사정보를 같이 볼 수있다
+  GET _analyze
+  {
+    "tokenizer":"nori_tokenizer",
+    "text":["동해물과 백두산이"],
+    "explain":true
+  }
+
+  인덱스 settings 부사를 제외시키는 put 만들기 -> 테스트
+  인덱스 settings rules만들기 -> 테스트
+
+  인덱스 basketball에서 2024년도 정보 검색해오기
+  인덱스 basketball에서 rebounds 3이상 인것 모두 검색
