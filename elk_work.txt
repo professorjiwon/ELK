@@ -333,3 +333,130 @@ DELETE classes
       }
     }
   }
+
+  -> submit_date에서 2023년도 검색값
+  GET basketball/_search
+  {
+    "query":{
+      "range":{
+        "submit_date":{
+          "gte" : "2023-01-01",
+          "lte" : "2023-12-31"
+        }
+      }
+    }
+  }
+
+8. 데이터 색인 : 역인덱스(단어 -> 매핑문서)
+
+-> tokenizer filter : 항목의 값으로 입력
+
+  GET _analyze
+  {
+    "text":"Today is a day where I feel lucky and happy",
+    "tokenizer":"whitespace",
+    "filter":[
+      "lowercase",    // 소문자로 변환
+      "stop",         // 불용어 제외
+      "snowball"      // 단어의 원형
+    ]
+  }
+
+  -> filter에 넣은 순서대로 적용됨
+  GET _analyze
+  {
+    "text":"Today Is A day where I feel lucky and happy",
+    "tokenizer":"whitespace",
+    "filter":[
+      "stop",     
+      "lowercase",   
+      "snowball"   
+    ]
+  }
+
+  -> index의 구조 만들기
+  PUT t_index
+  {
+    "mappings":{
+      "properties":{
+        "msg":{
+          "type":"text",
+          "analyzer":"snowball"
+        }
+      }
+    }
+  }
+
+  PUT t_index/_doc/1
+  {
+    "msg":"Today is a day where I feel lucky and happy"
+  }
+
+   GET t_index/_search
+
+  -> happy 검색됨
+  GET t_index/_search
+  {
+  "query":{
+    "match":{
+      "msg":"happy"
+    }
+  }
+  }
+
+  // 원형으로 들어가기 때문에 happi로 저장됨 term으로 검색하면 happy는 검색 안됨
+  -> happy 안됨
+  GET t_index/_search
+  {
+    "query":{
+      "term":{
+        "msg":"happy"
+      }
+    }
+  }
+
+  -> happy 검색됨
+  GET t_index/_search
+  {
+    "query":{
+      "term":{
+        "msg":"happi"
+      }
+    }
+  }
+
+  -> 사용자 정의 토큰 필터 만들기
+  PUT t_index2
+  {
+    "settings":{
+      "index":{
+        "analysis":{
+          "analyzer":{
+            "my_custom_analyzer":{
+              "type":"custom",
+              "tokenizer":"whitespace",
+              "filter":[
+                "lowercase",
+                "my_stop_filter",
+                "snowball"
+              ]
+            }
+          },
+          "filter":{
+            "my_stop_filter":{
+              "type":"stop",
+              "stopwords":[
+                "feel"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+
+  GET t_index2/_analyze
+  {
+    "analyzer":"my_custom_analyzer",
+    "text":["Today is a day where I feel lucky and happy"]
+  }
