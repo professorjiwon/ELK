@@ -209,9 +209,28 @@ DELETE classes
       "query":{
         "bool":{
           "must": [
-            {"match": {"team":"Jazz"}},
+            {"match": {"team":"Jazz"}},     // and조건
             {"match_phrase":{"team":"Golden States"}}
           ]
         }
       }
     } 
+
+    -> Golden States 사이의 1개의 단어가 들어오는것은 허용
+    GET basketball/_search
+    {
+      "query":{
+        "bool":{
+          "must": [
+            {"match": {"team":"Jazz"}}, 
+            {"match_phrase":{
+              "team":"Golden States",
+              "slop":1
+              }
+            }
+          ]
+        }
+      }
+    } 
+
+    -> Jazz 있고, Golden States 없는
