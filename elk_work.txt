@@ -438,6 +438,7 @@ DELETE classes
               "filter":[
                 "lowercase",
                 "my_stop_filter",
+                "stop",
                 "snowball"
               ]
             }
@@ -460,3 +461,60 @@ DELETE classes
     "analyzer":"my_custom_analyzer",
     "text":["Today is a day where I feel lucky and happy"]
   }
+
+  PUT t_index2/_doc/1
+  {
+    "msg":"Today is a day where I feel lucky and happy"
+  }
+
+  -> _termvectors : trem의 분석에 대한 자세한 정보보기
+  GET t_index2/_termvectors/1?fields=msg
+
+  * 한글 형태소 분석기 nori
+  설치 : elasticsearch-plugin install analysis-nori
+
+  -> 기본 토큰
+  GET _analyze
+  {
+    "analyzer":"standard",
+    "text":["동해물과 백두산이"]
+  }
+
+  -> nori 토큰
+  GET _analyze
+  {
+    "analyzer":"nori",
+    "text":["동해물과 백두산이"]
+  }
+
+  -> 사용자 사용 등록
+  PUT my_nori
+  {
+    "settings":{
+      "analysis":{
+        "tokenizer":{
+          "my_nori_token":{
+            "type":"nori_tokenizer",
+            "user_dictionary_rules":[
+              "해물"
+            ]
+          }
+        }
+      }
+    }
+  }
+
+  -> 사용자 등록 토큰
+  GET my_nori/_analyze
+  {
+    "tokenizer":"my_nori_token",
+    "text":["동해물과 백두산이"]
+  }
+
+  -> 합성어(복합어) 처리 3가지 옵션
+  - none : 복합어를 분리하지 않음
+  - discard : 복합어 분리
+  - mixed : none과 discard 모두 저장
+
+  
+
