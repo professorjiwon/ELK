@@ -1146,5 +1146,101 @@ POST ball_index/_bulk
 {"team" : "Golden States Warriors","name" : "Stephen Curry", "points" : 30,"rebounds" : 3,"assists" : 4, "blocks" : 5, "submit_date" : "2024-10-11"}
 { "index" : {"_id" : "2" } }
 {"team" : "Golden States Warriors","name" : "Stephen Curry","points" : 20,"rebounds" : 5,"assists" : 8, "blocks" : 5, "submit_date" : "2024-10-13"}
-  
 
+-> avg
+GET ball_index/_search
+{
+  "size":0,
+  "aggs":{
+    "avg_score":{
+      "avg":{
+        "field":"points"
+      }
+    }
+  }
+}
+
+-> max
+GET ball_index/_search
+{
+  "size":0,
+  "aggs":{
+    "max_score":{
+      "max":{
+        "field":"points"
+      }
+    }
+  }
+}
+
+-> min
+GET ball_index/_search
+{
+  "size":0,
+  "aggs":{
+    "min_score":{
+      "min":{
+        "field":"points"
+      }
+    }
+  }
+}
+
+-> sum
+GET ball_index/_search
+{
+  "size":0,
+  "aggs":{
+    "sum_score":{
+      "sum":{
+        "field":"points"
+      }
+    }
+  }
+}
+
+-> stats : 위의 4개 + count의 모든걸 볼 수 있다
+GET ball_index/_search
+{
+  "size":0,
+  "aggs":{
+    "stats_score":{
+      "stats":{
+        "field":"points"
+      }
+    }
+  }
+}
+
+  -> Bucket Aggregations : 그룹
+  GET basketball2/_search
+  {
+    "size":0,
+    "aggs":{
+      "plyer":{
+        "terms":{
+          "field":"team.keyword"
+        }
+      }
+    }
+  }
+
+  -> 팀별로 합계,평균...
+  GET basketball2/_search
+  {
+    "size":0,
+    "aggs":{
+      "team_stats":{
+        "terms":{
+          "field":"team.keyword"
+        },
+        "aggs":{
+          "stats_score":{
+            "stats":{
+              "field":"points"
+            }
+          }
+        }
+      }
+    }
+  }
