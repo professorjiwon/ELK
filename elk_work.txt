@@ -279,9 +279,6 @@ DELETE classes
     }
   }
 
-  11: 1.3365866
-  7 : 1.1689311  (8,9)
-
   -> filter : score에 영향을 주지 않고 검색값
 
   -> Jazz로만 검색한 것과 score가 다름
@@ -393,6 +390,7 @@ DELETE classes
   }
 
    GET t_index/_search
+   GET t_index/_mapping
 
   -> happy 검색됨
   GET t_index/_search
@@ -465,6 +463,15 @@ DELETE classes
   PUT t_index2/_doc/1
   {
     "msg":"Today is a day where I feel lucky and happy"
+  }
+
+  GET t_index2/_search
+  {
+    "query":{
+      "match":{
+        "msg":"feel"
+      }
+    }
   }
 
   -> _termvectors : trem의 분석에 대한 자세한 정보보기
@@ -543,7 +550,6 @@ DELETE classes
     "tokenizer":"nori_none",
     "text":["동해물과 백두산이"]
   }
-*/
 
   - stoptags : 한글 품사 중 제외시킬 품사
 
@@ -597,42 +603,42 @@ DELETE classes
 
 8. mapping(=스키마) : 자동으로 생성됨. 너무 많은 정보를 담고있다
 
-PUT books/_doc/1
-{
-  "title": "Romeo and Juliet",
-  "author": "William Shakespeare",
-  "category":"Tragedies",
-  "publish_date" : "1597-03-12T00:00:00",
-  "page" : 200
-}
+  PUT books/_doc/1
+  {
+    "title": "Romeo and Juliet",
+    "author": "William Shakespeare",
+    "category":"Tragedies",
+    "publish_date" : "1597-03-12T00:00:00",
+    "page" : 200
+  }
 
--> 전체 구조 확인
- GET books
- 
--> 전체 구조 중 mappings의 값만 보기
- GET books/_mapping
+  -> 전체 구조 확인
+  GET books
+  
+  -> 전체 구조 중 mappings의 값만 보기
+  GET books/_mapping
 
--mapping의 정의
- : 기존의 mapping에 추가는 가능하지만 바꾸지는 못한다
- [표현법]
- PUT 인덱스명/_mapping
- {
-  "properties":{
-    "추가할 필드명":{
-      "type" : "필드 타입"
+  -mapping의 정의
+  : 기존의 mapping에 추가는 가능하지만 바꾸지는 못한다
+  [표현법]
+  PUT 인덱스명/_mapping
+  {
+    "properties":{
+      "추가할 필드명":{
+        "type" : "필드 타입"
+      }
     }
   }
- }
 
- -> 기존의 books에 삽입
- PUT books/_mapping
- {
-  "properties":{
-    "content":{
-      "type":"text"
+  -> 기존의 books에 삽입
+  PUT books/_mapping
+  {
+    "properties":{
+      "content":{
+        "type":"text"
+      }
     }
   }
- }
 
   GET books/_mapping
 
@@ -646,24 +652,24 @@ PUT books/_doc/1
     }
   }
 
--> title.keyword로 검색하면 대소문자 가림 : 안나옴
-GET books/_search
-{
-  "query": {
-    "match": {
-      "title.keyword": "romeo"
+  -> title.keyword로 검색하면 대소문자 가림 : 안나옴
+  GET books/_search
+  {
+    "query": {
+      "match": {
+        "title.keyword": "romeo"
+      }
     }
   }
-}
 
-GET books/_search
-{
-  "query": {
-    "match": {
-      "title.keyword": "Romeo and Juliet"
+  GET books/_search
+  {
+    "query": {
+      "match": {
+        "title.keyword": "Romeo and Juliet"
+      }
     }
   }
-}
 
   DELETE  books
 
@@ -756,60 +762,60 @@ GET books/_search
 
   -> 숫자타입 : java의 타입과 동일 추가로
     - half_float: 2byte
-    - scaled_flat : long형태로 저장. 옵션으로 소수점위치를 지정.
+    - scaled_float : long형태로 저장. 옵션으로 소수점위치를 지정.
 
     mapping에 integer로 해놓고, 실수형을 넣으면 보여줄때는 실수형을 보여주지만
     실제 저장은 long형으로 저장되어 있음.
 
-    PUT num_index
-    {
-      "mappings":{
-        "properties":{
-          "value":{
-            "type":"integer"
-          }
+  PUT num_index
+  {
+    "mappings":{
+      "properties":{
+        "value":{
+          "type":"integer"
         }
       }
     }
+  }
 
-    PUT num_index/_doc/1
-    {
-      "value":1
-    }
+  PUT num_index/_doc/1
+  {
+    "value":1
+  }
 
-    PUT num_index/_doc/2
-    {
-      "value":"2"
-    }
+  PUT num_index/_doc/2
+  {
+    "value":"2"
+  }
 
-    PUT num_index/_doc/3
-    {
-      "value":3.4
-    }
+  PUT num_index/_doc/3
+  {
+    "value":3.4
+  }
 
-    GET num_index/_search
-    {
-      "query":{
-        "range":{
-          "value":{
-            "gte":1,
-            "lt":3
-          }
+  GET num_index/_search
+  {
+    "query":{
+      "range":{
+        "value":{
+          "gte":1,
+          "lt":3
         }
       }
     }
+  }
 
-    GET num_index/_search
-    {
-      "query":{
-        "range":{
-          "value":{
-            "gt":3,
-            "lt":5    // 결과 안나옴 3으로 저장되어 있기 때문
-          }
+  GET num_index/_search
+  {
+    "query":{
+      "range":{
+        "value":{
+          "gt":3,
+          "lt":5    // 결과 안나옴 3으로 저장되어 있기 때문
         }
       }
     }
+  }
 
   -> coerce옵션 : 지정한 타입외에 받을지 안받을지 선택(기본값:true)
   PUT num_index2
@@ -876,8 +882,63 @@ GET books/_search
       "properties":{
         "date":{
           "type":"date",
-          "format":"dd/MMM/yyyy HH:mm:ss"||epoch_millis||yyyy-MM-dd
+          "format":"dd/MMM/yyyy HH:mm:ss||epoch_millis||yyyy-MM-dd"
         }
       }
     }
   }
+  
+  -> object
+  PUT movies/_doc/1
+  {
+    "movie":{
+      "name":"Iron Man",
+      "side":"superhero"
+    }
+  }
+
+  GET movies/_mapping
+
+  GET movies/_search
+  {
+    "query":{
+      "match":{
+        "movie.name":"man"
+      }
+    }
+  }
+
+  PUT movies/_doc/2
+  {
+    "title":"The Avengers",
+    "movie":[
+      {
+        "name":"Iron Man",
+        "side":"superhero"
+      },
+      {
+        "name":"Loki",
+        "side":"villain"
+      },
+      {
+        "name":"Spider Man",
+        "side":"superhero"
+      }
+    ]
+  }
+
+  PUT movies/_doc/3
+  {
+    "title":"Avengers : Infinity War",
+    "movie":[
+      {
+        "name":"Loki",
+        "side":"villain"
+      },
+      {
+        "name":"Thanos",
+        "side":"superhero"
+      }
+    ]
+  }
+
