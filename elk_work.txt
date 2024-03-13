@@ -933,12 +933,116 @@ DELETE classes
     "movie":[
       {
         "name":"Loki",
-        "side":"villain"
+        "side":"superhero"
       },
       {
         "name":"Thanos",
+        "side":"villain"
+      }
+    ]
+  }
+
+  -> name은 Loki이고, side는 villain인 문서를 검색
+
+  * 결과 2개의 문서 검색해 옴
+  GET movies/_search
+  {
+    "query":{
+      "bool":{
+        "must":[
+          {
+            "match":{
+              "movie.name":"Loki"
+            }
+          },
+          {
+            "match":{
+              "movie.side":"villain"
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  * nested : 내부에 있는 object값들을 서로 다른 역색인을 만든다 
+    내가 원하는 결과 1개의 문서 검색
+
+  PUT movies2
+  {
+    "mappings":{
+      "properties":{
+        "movie":{
+          "type":"nested",
+          "properties":{
+            "name":{
+              "type":"text"
+            },
+            "side":{
+              "type":"keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  PUT movies2/_doc/2
+  {
+    "title":"The Avengers",
+    "movie":[
+      {
+        "name":"Iron Man",
+        "side":"superhero"
+      },
+      {
+        "name":"Loki",
+        "side":"villain"
+      },
+      {
+        "name":"Spider Man",
         "side":"superhero"
       }
     ]
+  }
+
+  PUT movies2/_doc/3
+  {
+    "title":"Avengers : Infinity War",
+    "movie":[
+      {
+        "name":"Loki",
+        "side":"superhero"
+      },
+      {
+        "name":"Thanos",
+        "side":"villain"
+      }
+    ]
+  }
+
+  GET movies2/_search
+  {
+    "query":{
+      "nested":{
+        "path":"movie",
+        "query":{
+          "bool":{
+            "must":[
+              {
+                "match":{
+                  "movie.name":"Loki"
+                }
+              },
+              {
+                "match":{
+                  "movie.side":"villain"
+                }
+              }
+            ]
+          }
+        }
+      } 
+    }
   }
 
