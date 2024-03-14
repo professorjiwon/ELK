@@ -1244,3 +1244,54 @@ GET ball_index/_search
       }
     }
   }
+
+  -> 전체 인덱스 검색
+  GET _cat/indices?v
+
+
+  ============================================================================
+
+                                  logstash
+
+  * 실행 기본 문법
+  input{
+    stdin{}
+  }
+  filter{
+
+  }
+  output{
+    stdout{}
+  }
+
+  실행시 cmd에서 
+  ~~~~ \logstash-8.12.2\bin>logstash -e "input{stdin{}} output{stdout{}}"
+
+  - 파일생성 하여 실행해 보기
+    * 파일 위치:  ~~~~ \logstash-8.12.2\log_test01.conf
+    * 실행 : ~~~~ \logstash-8.12.2\bin>logstash -f log_test01.conf
+
+  - tcp로 보낸 파라미터 콘솔에 출력하기
+    * config파일 : ~~~~ \logstash-8.12.2\log_test02.conf
+    * 실행 : ~~~~ \logstash-8.12.2\bin>logstash -f log_test02.conf
+
+  - 세계인구 파일을 가공하여 엘라시틱서치에 보내기
+    * config파일 : ~~~~ \logstash-8.12.2\log_population.conf
+    * 실행 : ~~~~ \logstash-8.12.2\bin>logstash -f log_population.conf
+
+    * elasticsearch에 넣기 전에 사용하기 편하게 가공이 필요
+      - mutate filter : 특정 필드를 가공해줌
+        옵션
+        - convert : 형변환
+        - copy : 값 복사
+        - gsub : 정규식에 일치하는 항목을 다른 문자열로 대체
+        - join : 배열을 하나로 합침
+        - split : 문자를 배열로 나눔
+        - lowercase, uppercase
+        - capitalize : 첫글자만 대문자로
+        - merge : 필드 값들을 다른 필드에 포함
+        - coerce : 값이 null일때 넣을 기본값설정
+        - update : 값을 업데이트
+        - strip : 좌우공백 제거
+        - rename : 필드이름 변경
+
